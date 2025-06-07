@@ -79,6 +79,7 @@ Configuration: Environment variables (python-dotenv)
 🗂️ File Structure
 
 binance-statistical-arbitrage-bot/
+
 ├── .env.example
 ├── .gitignore
 ├── cointegration.py
