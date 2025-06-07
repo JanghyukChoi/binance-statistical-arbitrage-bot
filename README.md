@@ -169,5 +169,5 @@ Z-score: 0.17
 
 ## 📜 License
 
-This project is under MIT License. Feel free to fork and modify, but use at your own risk in live markets.
+Feel free to fork and modify, but use at your own risk in live markets.
 
