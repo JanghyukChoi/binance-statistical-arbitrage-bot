@@ -81,15 +81,25 @@ Configuration: Environment variables (python-dotenv)
 binance-statistical-arbitrage-bot/
 
 ├── .env.example
+
 ├── .gitignore
+
 ├── cointegration.py
+
 ├── fetch_data.py
+
 ├── main.py
+
 ├── telegram_message.py
+
 ├── total_backtest.py
+
 ├── top5_cointegrated_pairs.csv
+
 ├── visualize.py
+
 ├── zscore_backtest.py
+
 ├── open_positions.json (ignored)
 
 📦 How to Run
