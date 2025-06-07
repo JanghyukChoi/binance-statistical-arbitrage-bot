@@ -138,6 +138,10 @@ Z-score: 0.17
 
 ---
 
+## System Architecture
+
+![Architecture Diagram](./architecture.png)
+
 ## 🛡️ Safety & Deployment
 
 * All credentials are managed via `.env` and excluded from Git.
