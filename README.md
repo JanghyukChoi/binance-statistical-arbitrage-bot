@@ -1,137 +1,132 @@
-Binance Statistical Arbitrage Bot with Telegram Integration
+# Binance Statistical Arbitrage Bot with Telegram Integration
 
-📌 Project Overview
+## 📌 Project Overview
 
-This project implements a fully-automated statistical arbitrage trading bot on Binance USDT perpetual futures. It leverages cointegration-based pair trading and z-score thresholds to identify trading opportunities and sends real-time trade signals via Telegram. The project is modular, backtestable, and production-ready.
+This project implements a **fully-automated statistical arbitrage trading bot** on Binance USDT perpetual futures. It leverages cointegration-based pair trading and z-score thresholds to identify trading opportunities and sends real-time trade signals via Telegram. The project is modular, backtestable, and production-ready.
 
-Purpose: To build a robust, data-driven crypto trading system suitable for real-time deployment and institutional-level analysis.
+> **Purpose**: To build a robust, data-driven crypto trading system suitable for real-time deployment and institutional-level analysis.
 
-⚙️ Features
+---
 
-Cointegration Analysis: Automatically detects cointegrated pairs using ADF test and Kalman Filter-based dynamic hedge ratios.
+## ⚙️ Features
 
-Top Pair Selection: Ranks pairs using a composite scoring model (PCA-based) considering p-value, zero-crossings, z-score, etc.
+* **Cointegration Analysis**: Automatically detects cointegrated pairs using ADF test and Kalman Filter-based dynamic hedge ratios.
+* **Top Pair Selection**: Ranks pairs using a composite scoring model (PCA-based) considering p-value, zero-crossings, z-score, etc.
+* **Real-time Signal Generation**: Monitors selected pairs every hour and triggers LONG/SHORT/EXIT signals based on z-score levels.
+* **Telegram Alert Integration**: Sends alerts for trade entry and exit via Telegram Bot with chat ID and token management via `.env`.
+* **Backtesting Support**: Includes z-score backtester and total portfolio return simulation.
+* **Modular Design**: Fully organized by component (`cointegration.py`, `fetch_data.py`, `visualize.py`, etc.).
 
-Real-time Signal Generation: Monitors selected pairs every hour and triggers LONG/SHORT/EXIT signals based on z-score levels.
+---
 
-Telegram Alert Integration: Sends alerts for trade entry and exit via Telegram Bot with chat ID and token management via .env.
+## 🧠 Strategy Logic
 
-Backtesting Support: Includes z-score backtester and total portfolio return simulation.
+1. **Cointegration Screening** (`main.py`):
 
-Modular Design: Fully organized by component (cointegration.py, fetch_data.py, visualize.py, etc.).
+   * Pulls OHLCV data from Binance using `python-binance`.
+   * Tests all USDT futures pairs for cointegration.
+   * Uses Kalman Filter to compute time-varying hedge ratio.
+   * Saves top 5 statistically strongest pairs to CSV.
 
-🧠 Strategy Logic
+2. **Signal Generation** (`telegram_message.py`):
 
-Cointegration Screening (main.py):
+   * Every hour, fetches live prices and recalculates z-score for the top 5 pairs.
+   * Entry condition:
 
-Pulls OHLCV data from Binance using python-binance.
+     * Z > 2: SHORT first coin / LONG second coin
+     * Z < -2: LONG first coin / SHORT second coin
+   * Exit condition:
 
-Tests all USDT futures pairs for cointegration.
+     * abs(Z) < 0.5: mean-reversion assumed complete
+   * All signals are logged and sent via Telegram.
 
-Uses Kalman Filter to compute time-varying hedge ratio.
+3. **Position Tracking**:
 
-Saves top 5 statistically strongest pairs to CSV.
+   * JSON file (`open_positions.json`) records current open pairs.
+   * Prevents duplicate entry/exit messages.
 
-Signal Generation (telegram_message.py):
+4. **Backtesting** (`zscore_backtest.py`, `total_backtest.py`):
 
-Every hour, fetches live prices and recalculates z-score for the top 5 pairs.
+   * Tests spread-based entry/exit logic on historical data.
+   * Supports multiple pairs and cumulative return analysis.
 
-Entry condition:
+---
 
-Z > 2: SHORT first coin / LONG second coin
+## 📊 Technology Stack
 
-Z < -2: LONG first coin / SHORT second coin
+* **Language**: Python 3.10+
+* **Data Source**: Binance Futures API (via `python-binance`)
+* **Statistical Models**:
 
-Exit condition:
+  * ADF test (via `statsmodels`)
+  * Kalman Filter (via `pykalman`)
+* **Notification**: Telegram Bot API (`requests`)
+* **Configuration**: Environment variables (`python-dotenv`)
 
-abs(Z) < 0.5: mean-reversion assumed complete
+---
 
-All signals are logged and sent via Telegram.
+## 🗂️ File Structure
 
-Position Tracking:
-
-JSON file (open_positions.json) records current open pairs.
-
-Prevents duplicate entry/exit messages.
-
-Backtesting (zscore_backtest.py, total_backtest.py):
-
-Tests spread-based entry/exit logic on historical data.
-
-Supports multiple pairs and cumulative return analysis.
-
-📊 Technology Stack
-
-Language: Python 3.10+
-
-Data Source: Binance Futures API (via python-binance)
-
-Statistical Models:
-
-ADF test (via statsmodels)
-
-Kalman Filter (via pykalman)
-
-Notification: Telegram Bot API (requests)
-
-Configuration: Environment variables (python-dotenv)
-
-🗂️ File Structure
-
+```
 binance-statistical-arbitrage-bot/
-
 ├── .env.example
-
 ├── .gitignore
-
 ├── cointegration.py
-
 ├── fetch_data.py
-
 ├── main.py
-
 ├── telegram_message.py
-
 ├── total_backtest.py
-
 ├── top5_cointegrated_pairs.csv
-
 ├── visualize.py
-
 ├── zscore_backtest.py
-
 ├── open_positions.json (ignored)
+```
 
-📦 How to Run
+---
 
-1. Clone the Repository
+## 📦 How to Run
 
+### 1. Clone the Repository
+
+```bash
 git clone https://github.com/yourusername/binance-statistical-arbitrage-bot.git
 cd binance-statistical-arbitrage-bot
+```
 
-2. Install Requirements
+### 2. Install Requirements
 
+```bash
 pip install -r requirements.txt
+```
 
-3. Setup Environment Variables
+### 3. Setup Environment Variables
 
-Create a .env file based on .env.example:
+Create a `.env` file based on `.env.example`:
 
+```env
 BINANCE_API_KEY=your_key
 BINANCE_API_SECRET=your_secret
 TELEGRAM_TOKEN=your_bot_token
 TELEGRAM_CHAT_ID=your_chat_id
+```
 
-4. Run Main Screening Script
+### 4. Run Main Screening Script
 
+```bash
 python main.py
+```
 
-5. Schedule Hourly Signal Monitoring
+### 5. Schedule Hourly Signal Monitoring
 
+```bash
 python telegram_message.py  # or run via crontab/Task Scheduler
+```
 
-📈 Example Telegram Alerts
+---
 
+## 📈 Example Telegram Alerts
+
+```
 [ADAUSDT - SOLUSDT]
 Z-score: -2.31
 📈 LONG ADA / SHORT SOL (entry signal)
@@ -139,28 +134,36 @@ Z-score: -2.31
 [BTCUSDT - ETHUSDT]
 Z-score: 0.17
 ✅ EXIT position (mean-reversion completed)
+```
 
-🛡️ Safety & Deployment
+---
 
-All credentials are managed via .env and excluded from Git.
+## 🛡️ Safety & Deployment
 
-Backtesting before deployment is highly recommended.
+* All credentials are managed via `.env` and excluded from Git.
+* Backtesting before deployment is highly recommended.
+* You can plug this logic into execution systems (e.g., Binance order API) with minimal extension.
 
-You can plug this logic into execution systems (e.g., Binance order API) with minimal extension.
+---
 
-🙋 About the Author
+## 🙋 About the Author
 
-Janghyuk Choi — Aspiring quantitative developer and algorithmic trader passionate about applying data science to financial markets. This project was built as part of a trading system engineering portfolio.
+**Janghyuk Choi** — Aspiring quantitative developer and algorithmic trader passionate about applying data science to financial markets. This project was built as part of a trading system engineering portfolio.
 
-For collaboration or questions, contact via GitHub or Telegram.
+> For collaboration or questions, contact via GitHub or Telegram.
 
-⭐ Future Improvements
+---
 
-Add dynamic portfolio allocation using Kelly or volatility parity
+## ⭐ Future Improvements
 
-Enhance cointegration filtering with Hurst exponent or p-value decay
+* Add dynamic portfolio allocation using Kelly or volatility parity
+* Enhance cointegration filtering with Hurst exponent or p-value decay
+* Web dashboard for signal monitoring
+* Automated order execution engine (Binance Futures)
 
-Web dashboard for signal monitoring
+---
 
-Automated order execution engine (Binance Futures)
+## 📜 License
+
+This project is under MIT License. Feel free to fork and modify, but use at your own risk in live markets.
 
